@@ -3,6 +3,11 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [ "main" ]  # Cambia a "master" si es tu rama principal
+with:
+  github_token: ${{ secrets.GITHUB_TOKEN }}  # Usa el token automático
+  publish_dir: ./dist
+env:
+  ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'  # Permite comandos necesarios
 
 jobs:
   deploy:
