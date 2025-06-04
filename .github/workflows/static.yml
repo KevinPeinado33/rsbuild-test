@@ -1,4 +1,4 @@
-name: Deploy GAAA
+name: Deploy Static
 
 on:
   workflow_dispatch:
