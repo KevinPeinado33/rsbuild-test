@@ -2,34 +2,28 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ "main" ]  # Cambia a "master" si es tu rama principal
-with:
-  github_token: ${{ secrets.GITHUB_TOKEN }}  # Usa el token automático
-  publish_dir: ./dist
-env:
-  ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'  # Permite comandos necesarios
+    branches: [ "main" ]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions:  # ¡Esto es clave!
+      contents: write
+      pages: write
+      id-token: write
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'  # Usa la versión de Node.js que necesites
+          node-version: 20
 
-      - name: Install dependencies
-        run: npm install
+      - run: npm install && npm run build
 
-      - name: Build with RsBuild
-        run: npm run build  # Asegúrate de que este comando genera los archivos en /dist
-
-      - name: Deploy to GitHub Pages
+      - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}  # Token automático
           publish_dir: ./dist
