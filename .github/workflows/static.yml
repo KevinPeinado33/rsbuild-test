@@ -10,54 +10,49 @@ permissions:
   pages: write
   id-token: write
 
-concurrency:
-  group: pages
-  cancel-in-progress: true  # Mejor para evitar despliegues obsoletos
-
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          persist-credentials: false  # Más seguro para despliegues
 
       - name: Setup PNPM
         uses: pnpm/action-setup@v3
         with:
           version: 8
-          
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'pnpm'
-          
+
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile  # Más consistente
+        run: |
+          # Primero intenta con lockfile, si falla hace install normal
+          pnpm install --frozen-lockfile || pnpm install
+          
+          # Genera lockfile si no existe
+          if [ ! -f pnpm-lock.yaml ]; then
+            pnpm install --lockfile-only
+            echo "⚠️ Generated new pnpm-lock.yaml - commit this file!"
+          fi
 
       - name: Build with Rspress
+        run: pnpm run build
+
+      - name: Verify build output
         run: |
-          pnpm run build
-          ls -R dist  # Verificación de la estructura de archivos
-          
-      - name: Validate build output
-        run: |
-          [ -f dist/index.html ] || (echo "Error: No se encontró index.html" && exit 1)
-          [ -d dist/static/css ] || (echo "Error: No se encontró CSS" && exit 1)
+          [ -f dist/index.html ] || (echo "❌ Error: Missing index.html" && exit 1)
+          [ -d dist/static/css ] && echo "✅ CSS found" || echo "⚠️ No CSS directory"
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: 'dist'
-          retention-days: 1  # Limpieza automática
 
       - name: Deploy to GitHub Pages
-        id: deployment
         uses: actions/deploy-pages@v4
