@@ -1,0 +1,17 @@
+[
+  {
+    "text": "Inicio",
+    "link": "/",
+    "activeMatch": "/"
+  },
+  {
+    "text": "Hello world",
+    "link": "/hello/",
+    "activeMatch": "/hello/"
+  },
+  {
+    "text": "Hola",
+    "link": "/hola/",
+    "activeMatch": "/hola/"
+  }
+]
