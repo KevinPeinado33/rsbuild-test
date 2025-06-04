@@ -19,4 +19,10 @@ export default defineConfig({
     ],
   },
   outDir: 'dist',
+  base: '/rsbuild-test/', // Asegúrate que coincida con tu repo
+  builderConfig: {
+    output: {
+      assetPrefix: '/rsbuild-test/', // Mismo que base
+    }
+  }
 });
